@@ -1,6 +1,7 @@
 # Stage 1: Install only production dependencies
 # Define build arguments
 ARG NODE_ENV
+ARG PORT
 
 FROM node:20.10.0-buster-slim as builder
 
@@ -41,10 +42,14 @@ RUN npm install -g npm@10.2.5
 COPY package*.json ./
 
 # Set environment variables using build arguments
-ENV NODE_ENV=${NODE_ENV}
+ENV NODE_ENV=${NODE_ENV} \
+    PORT=${PORT}
 
 # Copy only necessary files from the builder and compiler stages
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=compiler /app/dist ./dist
+
+# Expose the port the app runs on
+EXPOSE ${PORT}
 
 CMD ["node", "dist/server.js"]
